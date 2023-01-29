@@ -5,18 +5,37 @@ import axios from 'axios'
 
 function App() {
   const [deckID, setDeckID] = useState("")
-  const [playerHand, setPlayerHand] = useState([])
-  const [dealerHand, setDealerHand] = useState([])
-  const [dealerHandValue, setDealerHandValue] = useState(0)
-  const [dealerFirstCard, setDealerFirstCard] = useState("")
-  const [playerHandValue, setPlayerHandValue] = useState(0)
-  const [playerStand, setPlayerStand] = useState(false)
-  const [turn, setTurn] = useState(0)
-  const [dealerHandHit, setDealerHandHit] = useState(false)
   const deckUrl = "https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1"
+  const initialDrawCardUrl = `https://deckofcardsapi.com/api/deck/${deckID}/draw/?count=4`
   const drawCardUrl = `https://deckofcardsapi.com/api/deck/${deckID}/draw/?count=1`
+  const [initialCards, setInitialCards] = useState([])
+  const [playerValue, setPlayerValue] = useState(0)
+  const [dealerValue, setDealerValue] = useState(0)
+  const [dealerCardOne, setDealerCardOne] = useState("");
+  const [dealerCardTwo, setDealerCardTwo] = useState(""); 
+  const [playerCardOne, setPlayerCardOne] = useState("");
+  const [playerCardTwo, setPlayerCardTwo] = useState(""); 
+  const [showDealer, setShowDealer] = useState(false)
+  const [playerHitCount, setplayerHitCount] = useState(0)
 
-//{dealerHand[0][0].value}
+  const [dealerHitHand, setDealerHitHand] = useState([])
+
+
+  const cardValues = {
+    'ACE': 1,
+    'JACK': 10,
+    'QUEEN': 10,
+    'KING': 10,
+    '2': 2,
+    '3': 3,
+    '4': 4,
+    '5': 5,
+    '6': 6,
+    '7': 7,
+    '8': 8,
+    '9': 9,
+    '10': 10
+  }
 
   // calls API for a deck of shuffled cards
   const getDeck = () => {
@@ -24,124 +43,121 @@ function App() {
       .then((response) => {
         setDeckID(response.data.deck_id);
       })
-  }
+  };
 
-  // changes player hand value
-  /*
-  const changePlayerValue = () => {
-    for (let i = 0; i < playerHand.length; i++) {
-      if(playerHand[i][0].value === "QUEEN" || playerHand[i][0].value === "JACK" || playerHand[i][0].value === "KING"){
-        setPlayerHandValue(playerHandValue + 10)
-        return playerHandValue
-      } else if(playerHand[i][0].value === "ACE") {
-        setPlayerHandValue(playerHandValue + 1)
-      } else {
-        setPlayerHandValue(playerHandValue + parseInt(playerHand[i][0].value))
-        return playerHandValue
-      }
-    }
-  }
-  */
-  // calls API to draw a card from the deck and adds the card to the playerHand Array
-
-  const playerHandValueUpdate = (response) => {
-    if(response.data.cards[0].value === "JACK" || response.data.cards[0].value === "QUEEN" || response.data.cards[0].value === "KING"){
-      return 10;
-    } else if(response.data.cards[0].value === "ACE"){
-      return 11;
-    }
-    return parseInt(response.data.cards[0].value);
-  }
-  const getPlayerCard = () => {
-    
-    axios.get(drawCardUrl)
-      .then((response) => {
-        setPlayerHand(oldArray => [...oldArray, response.data.cards]);
-        console.log(response.data)
-        setPlayerHandValue(playerHandValue + playerHandValueUpdate(response))
-      })
-      setTurn(turn+1)
-    }
-
-
-  
-
-  // drawing card for dealer hand
-  const getDealerCard = () => {
-    axios.get(drawCardUrl)
-      .then((response) => {
-        setDealerHand(oldArray => [...oldArray, response.data.cards]);
-        setDealerFirstCard(response.data.cards[0].value)
-      })
-    setDealerHandHit(true)
-  }
-  const setFirstHand = (card) => {
-    setDealerFirstCard(card)
-  }
   const startGame = () => {
-    setTurn(turn+1)
-    getPlayerCard()
-    getDealerCard()
-    getDealerCard()
+    axios.get(initialDrawCardUrl)
+      .then((response) => {
+        console.log(response.data.cards)
+        setInitialCards(response.data.cards)
+        setDealerCardOne(response.data.cards[0].value)
+        setDealerCardTwo(response.data.cards[1].value)
+        setPlayerCardOne(response.data.cards[2].value)
+        setPlayerCardTwo(response.data.cards[3].value)
+        //setPlayerHand(cardValues[playerCardTwo] + cardValues[playerCardOne])
+      })
+  };
+  const playerHit = () => {
+    axios.get(drawCardUrl)
+      .then((response) => {
+        console.log(response.data.cards)
+        setInitialCards(oldArray => [...oldArray, response.data.cards[0]])
+        ///cards[initialCards.length]
+      })
   }
-  if(playerStand){
-    return (
-      <>
-        <div>
-          playerhand
-        {
-          playerHand.map((e, index) =>
-            <div>{e[0].value} </div>
-          )
-        }
-        playerhand value: {playerHandValue}
-        
-        </div>
-        <div>
-          dealer hand
-        </div>
-        {
-          dealerHand.map((e, index) =>
-            <div>{e[0].value} </div>
-          )
-        }
-      </>
-    )
+  const dealerHit = () => {
+    axios.get(drawCardUrl)
+      .then((response) => {
+        console.log(response.data.cards)
+        setDealerHitHand(oldArray => [...oldArray, response.data.cards[0]])
+        setDealerValue(cardValues[dealerCardOne] + cardValues[dealerCardTwo] + parseInt(response.data.cards[0].value))
+        ///cards[initialCards.length]
+      })
   }
-  // After Player Hits Once
-  if(playerHand.length > 0){
-    return (
-      <>
-        <div>
-          playerhand
-        {
-          playerHand.map((e) =>
-            <div>{e[0].value} </div>
-          )
+  const dealerAfterStand = () => {
+    if((dealerCardOne==='ACE' || dealerCardTwo==='ACE')){
+      if((cardValues[dealerCardOne] + cardValues[dealerCardTwo]) < 12){
+        setDealerValue(cardValues[dealerCardOne] + cardValues[dealerCardTwo] + 10)
+        if(dealerValue < 17){
+          dealerHit()
         }
-        Your hand value: {playerHandValue}
-        <br/>
-        turn: {turn}
-        </div>
-        <div>
-          dealer hand
-        firstcard
-        {dealerFirstCard}
-        </div>
+      }
+    } else {
+      // check if dealer hand is greater than 16
+      if((cardValues[dealerCardOne] + cardValues[dealerCardTwo]) > 16){
+        setDealerValue(cardValues[dealerCardOne] + cardValues[dealerCardTwo])
+      } else{
+        dealerHit()
+      }
+      /*
+      let total = 0
+      console.log(initialCards.length - 2)
+      for (let index = 0; index < initialCards.length; index++) {
+        total = total + cardValues[initialCards[index].value];
+      }
+      setPlayerValue(total)
+       */
+    }
+  }
 
-        <button onClick={() => getPlayerCard()}> Hit </button>
-        <button onClick={() => setPlayerStand(true)}> Stand </button>
-      </>
-    )
+  const playerStand = () => {
+    if((playerCardOne==='ACE' || playerCardTwo==='ACE')){
+      if((cardValues[playerCardOne] + cardValues[playerCardTwo]) < 12){
+        setPlayerValue(cardValues[playerCardOne] + cardValues[playerCardTwo] + 10)
+      }
+    } else {
+      let total = 0
+      for (let index = 2; index < initialCards.length; index++) {
+        total = total + cardValues[initialCards[index].value];
+      }
+      setPlayerValue(total)
+    }
+    setShowDealer(true)
+    dealerAfterStand()
+    
   }
-  // Initial Screen
+  getDeck()
   return (
-    <>
+    <div>
       <div>
-        <button onClick={() => getDeck()}> get deck </button>
         <button onClick={() => startGame()}> start game </button>
+        Dealerhand {dealerValue}
+        <div className='cardHand'>
+        {
+          showDealer&&<div> 
+            
+          </div>
+        }
+        {
+          dealerHitHand.map((e,index) => 
+            <div key={e.code}> 
+              <img src={e.image} alt="" srcSet="" />
+            </div>
+          )
+        }
+        {
+          initialCards.map((e,index) => 
+            (index < 2) &&<div key={e.code}> 
+              <img src={e.image} alt="" srcSet="" />
+            </div>
+          )
+        }
+        </div>
+        Playerhand
+        <div className='cardHand'>
+        {
+          initialCards.map((e,index) => 
+            (index > 1)&&<div key={e.code}> 
+              <img src={e.image} alt="" srcSet="" />
+            </div>
+          )
+        }
+        </div>
       </div>
-    </>
+      <button onClick={() => playerHit()}> hit </button>
+      <button onClick={() => playerStand()}> stand </button>
+      
+    </div>
   )
 }
 

@@ -4,7 +4,14 @@
   padding: 2rem;
   text-align: center;
 }
-
+.background {
+  background-color: black;
+  width: 100vw;
+  height: 100vh;
+}
+.cardHand {
+  display: flex;
+}
 .logo {
   height: 6em;
   padding: 1.5em;
