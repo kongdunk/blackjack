@@ -1,5 +1,5 @@
 export const cardValues = {
-    'ACE': 1,
+    'ACE': 11,
     'JACK': 10,
     'QUEEN': 10,
     'KING': 10,
