@@ -19,6 +19,7 @@ function App() {
   const [playerCards, setPlayerCards] = useState([])
   const [dealerCards, setDealerCards] = useState([])
   const [bust, setBust] = useState(false)
+  const [firstCardDrawn, setFirstcardDrawn] = useState(false)
 
   // calls API for a deck of shuffled cards
   const getDeck = () => {
@@ -36,8 +37,10 @@ function App() {
   }
   useEffect(() => {
     getDeck()
-    getCards()
   },[])
+  useEffect(() => {
+    getCards()
+  },[deckID])
   useEffect(() => {
     if(cardIndex > 0){
       setCardValue(setPlayerValue, playerCards, playerValue)
@@ -45,7 +48,11 @@ function App() {
     }
     if(cardIndex === 0){
       getDeck()
-      console.log("deck drawn!")
+    }
+    if(firstCardDrawn){
+      getCard(setDealerCards)
+      console.log("carddrawn")
+      setFirstcardDrawn(false)
     }
   },[playerCards])  
 
@@ -75,20 +82,23 @@ function App() {
     setHand(oldArray => [...oldArray, (cards[cardIndex])])
     if(setHand === setPlayerCards){
       setCardIndex(cardIndex + 1)
+      if(cardIndex === 0){
+        setFirstcardDrawn(true)
+      }
     } else {
       setDealerIndex(dealerIndex + 1)
     }
   }
-
-
   const playerStand = () => {
-    console.log(dealerCards)
+    if(dealerValue < 17){
+      getCard(setDealerCards)
+    } else{
+      console.log('yo mama')
+    }
   }
   return (
     <div>
-      <button onClick={() => getCards() }> getcards </button>
       <button onClick={() => getCard(setPlayerCards) }> Hit </button>
-      <button onClick={() => getCard(setDealerCards) }> Hit Dealer </button>
       <button onClick={() => playerStand()}> stand </button>
       <div>
         {playerValue}
