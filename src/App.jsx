@@ -58,7 +58,7 @@ function App() {
     console.log(playerCards)
   },[dealerCards])   
   //seting hand value
-  const setCardValue = (setHandValue, hand, handValue) => {v
+  const setCardValue = (setHandValue, hand, handValue) => {
     if(hand[cardIndex-1].value === "ACE" && ((handValue + 11) > 21)){
       setHandValue(oldHandValue => oldHandValue + 1)  
     } else if(hand[cardIndex-1].value === "ACE"){
