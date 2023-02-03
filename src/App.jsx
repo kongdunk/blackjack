@@ -18,8 +18,10 @@ function App() {
   const [dealerIndex, setDealerIndex] = useState(0)
   const [playerCards, setPlayerCards] = useState([])
   const [dealerCards, setDealerCards] = useState([])
+  const [playerDrawCount, setPlayerDrawCount] = useState(0)
   const [bust, setBust] = useState(false)
   const [firstCardDrawn, setFirstcardDrawn] = useState(false)
+  const [allDrawn, setAllDrawn] = useState([])
 
   // calls API for a deck of shuffled cards
   const getDeck = () => {
@@ -44,7 +46,8 @@ function App() {
   useEffect(() => {
     if(cardIndex > 0){
       setCardValue(setPlayerValue, playerCards, playerValue)
-      console.log(playerCards[cardIndex-1].value)
+      setPlayerDrawCount(playerDrawCount + 1)
+      console.log(playerDrawCount)
     }
     if(cardIndex === 0){
       getDeck()
@@ -53,6 +56,7 @@ function App() {
       getCard(setDealerCards)
       console.log("carddrawn")
       setFirstcardDrawn(false)
+
     }
   },[playerCards])  
 
@@ -60,12 +64,18 @@ function App() {
     if(dealerIndex > 0){
       setCardValue(setDealerValue, dealerCards, playerValue)
     }
-    
-    console.log(dealerCards)
-    console.log(playerCards)
   },[dealerCards])   
   //seting hand value
   const setCardValue = (setHandValue, hand, handValue) => {
+    if((hand === dealerCards) && (dealerIndex > 1)){
+      if(hand[cardIndex-playerDrawCount].value === "ACE" && ((handValue + 11) > 21)){
+        setHandValue(oldHandValue => oldHandValue + 1)  
+      } else if(hand[cardIndex-playerDrawCount].value === "ACE"){
+        setHandValue(oldHandValue => oldHandValue + 11)  
+      } else {
+      setHandValue(oldHandValue => oldHandValue + cardValues[hand[cardIndex-playerDrawCount].value])
+      }
+    } else {
     if(hand[cardIndex-1].value === "ACE" && ((handValue + 11) > 21)){
       setHandValue(oldHandValue => oldHandValue + 1)  
     } else if(hand[cardIndex-1].value === "ACE"){
@@ -76,10 +86,15 @@ function App() {
     if(playerValue > 21){
       console.log("busted")
     }
+    }
+    console.log(dealerCards)
+    console.log(playerCards)
+    console.log(allDrawn)
   }
 
   const getCard = (setHand) => {
     setHand(oldArray => [...oldArray, (cards[cardIndex])])
+    setAllDrawn(oldArray => [...oldArray, (cards[cardIndex])])
     if(setHand === setPlayerCards){
       setCardIndex(cardIndex + 1)
       if(cardIndex === 0){
@@ -87,9 +102,13 @@ function App() {
       }
     } else {
       setDealerIndex(dealerIndex + 1)
+      if(dealerIndex > 0){
+        setCardIndex(cardIndex + 1)
+      }
     }
   }
   const playerStand = () => {
+    setCardIndex(cardIndex + 1)
     if(dealerValue < 17){
       getCard(setDealerCards)
     } else{
