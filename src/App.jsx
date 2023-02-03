@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import './App.css'
 import axios from 'axios'
 import { cardValues } from '../data/data'
+import { motion } from "framer-motion"
+
 
 function App() {
   // API stuff
@@ -40,12 +42,25 @@ function App() {
         console.log(response.data)
       })
   }
+  // setting game end message 
   useEffect(() => {
     if(playerValue > 21){
       setBust(true)
+      setGameEndMsg("Player Bust")
     }
     if(dealerValue > 16){
       setDealerStand(true)
+    }
+    if((playerValue < 21) && (dealerValue < 21)){
+      if(playerValue < dealerValue){
+        setGameEndMsg("Dealer Wins")
+      }
+      if(dealerValue < playerValue){
+        setGameEndMsg("Player Wins")
+      }
+      if(dealerValue === playerValue){
+        setGameEndMsg("Tie")
+      }
     }
   })
   useEffect(() => {
@@ -137,7 +152,7 @@ function App() {
   return (
     <div>
       { bust &&
-        <div> Busted Hand </div>
+        <div> {gameEndMsg} </div>
       }
       { (!stand && !bust) &&
         <div>
@@ -158,18 +173,24 @@ function App() {
         <div className='cardsContainer'>
         {
           playerCards.map((e) => 
-            <div>
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+            >
               <img className='card' src={e.image} alt="" srcset="" />
-            </div>
+            </motion.div>
           )
         }
         </div>
         <div className='cardsContainer'>
         {
           dealerCards.map((e) => 
-            <div>
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+            >
               <img className='card' src={e.image} alt="" srcset="" />
-            </div>
+            </motion.div>
           )
         }
         </div>
