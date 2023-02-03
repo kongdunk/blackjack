@@ -22,6 +22,9 @@ function App() {
   const [bust, setBust] = useState(false)
   const [firstCardDrawn, setFirstcardDrawn] = useState(false)
   const [allDrawn, setAllDrawn] = useState([])
+  const [stand, setStand] = useState(false)
+  const [dealerStand, setDealerStand] = useState(false)
+  const [gameEndMsg, setGameEndMsg] = useState("bruh")
 
   // calls API for a deck of shuffled cards
   const getDeck = () => {
@@ -38,8 +41,13 @@ function App() {
       })
   }
   useEffect(() => {
-    getDeck()
-  },[])
+    if(playerValue > 21){
+      setBust(true)
+    }
+    if(dealerValue > 16){
+      setDealerStand(true)
+    }
+  })
   useEffect(() => {
     getCards()
   },[deckID])
@@ -54,7 +62,6 @@ function App() {
     }
     if(firstCardDrawn){
       getCard(setDealerCards)
-      console.log("carddrawn")
       setFirstcardDrawn(false)
 
     }
@@ -63,6 +70,9 @@ function App() {
   useEffect(() => {
     if(dealerIndex > 0){
       setCardValue(setDealerValue, dealerCards, playerValue)
+    }
+    if(dealerValue > 16){
+      setDealerStand(true)
     }
   },[dealerCards])   
   //seting hand value
@@ -93,19 +103,23 @@ function App() {
   }
 
   const getCard = (setHand) => {
+    if(dealerValue > 16){
+      console.log('dealerbusted')
+    } else {
     setHand(oldArray => [...oldArray, (cards[cardIndex])])
     setAllDrawn(oldArray => [...oldArray, (cards[cardIndex])])
     if(setHand === setPlayerCards){
       setCardIndex(cardIndex + 1)
       if(cardIndex === 0){
         setFirstcardDrawn(true)
-      }
+      } 
     } else {
       setDealerIndex(dealerIndex + 1)
       if(dealerIndex > 0){
         setCardIndex(cardIndex + 1)
       }
     }
+  }
   }
   const playerStand = () => {
     setCardIndex(cardIndex + 1)
@@ -114,17 +128,61 @@ function App() {
     } else{
       console.log('yo mama')
     }
+    setStand(true)
+  }
+  const restartGame = () => {
+    getDeck()
+    set
   }
   return (
     <div>
-      <button onClick={() => getCard(setPlayerCards) }> Hit </button>
-      <button onClick={() => playerStand()}> stand </button>
+      { bust &&
+        <div> Busted Hand </div>
+      }
+      { (!stand && !bust) &&
+        <div>
+          <button onClick={() => getCard(setPlayerCards) }> Hit </button>
+          <button onClick={() => playerStand()}> Stand </button>
+        </div>
+      }
+      { (stand && !dealerStand) && 
+        <button onClick={() => playerStand()}> Dealer Hit </button>
+      }
+      {
+        dealerStand && <div>
+          dealer stand
+        </div>
+      }
       <div>
         {playerValue}
+        <div className='cardsContainer'>
+        {
+          playerCards.map((e) => 
+            <div>
+              <img className='card' src={e.image} alt="" srcset="" />
+            </div>
+          )
+        }
+        </div>
+        <div className='cardsContainer'>
+        {
+          dealerCards.map((e) => 
+            <div>
+              <img className='card' src={e.image} alt="" srcset="" />
+            </div>
+          )
+        }
+        </div>
       </div>
       <div>
         {dealerValue}
       </div>
+      <div>
+        { stand &&
+          gameEndMsg
+        }
+      </div>
+      <button onClick={() => restartGame()}> play again </button>
     </div>
   )
 }
