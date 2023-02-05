@@ -169,13 +169,14 @@ function App() {
         </div>
       }
       <div>
-        {playerValue}
+        { (playerValue > 0) && <div> {playerValue} </div>}
         <div className='cardsContainer'>
         {
           playerCards.map((e) => 
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
+              transition={{ duration: 0.35 }}
             >
               <img className='card' src={e.image} alt="" srcset="" />
             </motion.div>
@@ -188,6 +189,7 @@ function App() {
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
+              transition={{ duration: 0.35 }}
             >
               <img className='card' src={e.image} alt="" srcset="" />
             </motion.div>
@@ -196,14 +198,16 @@ function App() {
         </div>
       </div>
       <div>
-        {dealerValue}
+        { (dealerValue > 0) && <div> {dealerValue} </div>}
       </div>
       <div>
-        { stand &&
+        { (stand && (dealerValue > 16)) &&
           gameEndMsg
         }
       </div>
-      <button onClick={() => restartGame()}> play again </button>
+      <button id='playAgaianButton' onClick={() => 
+        location.href = '/'
+      }> play again </button>
     </div>
   )
 }

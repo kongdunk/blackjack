@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Josefin+Sans&family=Source+Sans+Pro:wght@300;400;600&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Josefin+Sans&family=Source+Sans+Pro:wght@300;400;600&display=swap");
 
 :root {
   font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
@@ -47,6 +47,9 @@ h1 {
   font-size: 3.2em;
   line-height: 1.1;
 }
+#playAgaianButton {
+  width: 208px;
+}
 
 button {
   border-radius: 8px;
@@ -58,6 +61,8 @@ button {
   background-color: #1a1a1a;
   cursor: pointer;
   transition: border-color 0.25s;
+  margin: 4px;
+  width: 150px;
 }
 button:hover {
   border-color: #646cff;
@@ -70,15 +75,15 @@ button:focus-visible {
 @media (prefers-color-scheme: light) {
   :root {
     font-size: larger;
-    font-family: 'Josefin Sans', sans-serif;
+    font-family: "Josefin Sans", sans-serif;
     color: white;
-    background-color: #556EE6;
+    background-color: #556ee6;
   }
   a:hover {
     color: #747bff;
   }
   button {
-    background-color: #778BEB;
+    background-color: #778beb;
     color: white;
   }
 }
