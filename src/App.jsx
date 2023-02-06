@@ -27,16 +27,18 @@ function App() {
   const [stand, setStand] = useState(false)
   const [dealerStand, setDealerStand] = useState(false)
   const [gameEndMsg, setGameEndMsg] = useState("bruh")
+  const [playerAce, setPlayerAce] = useState(false)
+  const [dealerAce, setDealerAce] = useState(false)
 
   // calls API for a deck of shuffled cards
-  const getDeck = () => {
-    axios.get(deckUrl)
+  const getDeck = async() => {
+    await axios.get(deckUrl)
       .then((response) => {
         setDeckID(response.data.deck_id);
       })
   };
-  const getCards = () => {
-    axios.get(drawCardsUrl)
+  const getCards = async() => {
+    await axios.get(drawCardsUrl)
       .then((response) => {
         setCards(response.data.cards)
         console.log(response.data)
@@ -68,7 +70,7 @@ function App() {
   },[deckID])
   useEffect(() => {
     if(cardIndex > 0){
-      setCardValue(setPlayerValue, playerCards, playerValue)
+      setCardValue(setPlayerValue, playerCards, playerValue, setPlayerAce)
       setPlayerDrawCount(playerDrawCount + 1)
       console.log(playerDrawCount)
     }
@@ -84,17 +86,18 @@ function App() {
 
   useEffect(() => {
     if(dealerIndex > 0){
-      setCardValue(setDealerValue, dealerCards, playerValue)
+      setCardValue(setDealerValue, dealerCards, dealerValue, setDealerAce)
     }
     if(dealerValue > 16){
       setDealerStand(true)
     }
   },[dealerCards])   
   //seting hand value
-  const setCardValue = (setHandValue, hand, handValue) => {
+  const setCardValue = (setHandValue, hand, handValue, setAce) => {
     if((hand === dealerCards) && (dealerIndex > 1)){
       if(hand[cardIndex-playerDrawCount].value === "ACE" && ((handValue + 11) > 21)){
-        setHandValue(oldHandValue => oldHandValue + 1)  
+        setHandValue(oldHandValue => oldHandValue + 1)
+        setAce(true)
       } else if(hand[cardIndex-playerDrawCount].value === "ACE"){
         setHandValue(oldHandValue => oldHandValue + 11)  
       } else {
